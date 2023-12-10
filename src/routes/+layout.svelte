@@ -1,27 +1,4 @@
 <script>
-	// // key = href,
-	// /** @type {Object<string, string>[]} */
-	// let ft = [];
-	// for (let i = 0; i < routes.length; i++) {
-	// 	let curr = routes[i];
-	// 	if (prev.depth < curr.depth) {
-	// 		ft += `\n\t<details class="ft-item is-expandable">`;
-	// 		ft += `\n\t\t<summary class="ft-title">${prev.name}</summary>`;
-	// 	}
-	// 	if (prev.depth === curr.depth) {
-	// 		ft += `\n\t\t\t<div class="ft-item">`;
-	// 		ft += `\n\t\t\t\t<a class="ft-title" href="${curr.href}">${curr.name}</a>`;
-	// 		ft += `\n\t\t\t</div>`;
-	// 	}
-	// 	if (curr.depth > next.depth) {
-	// 		ft += `\n\t</details>`;
-	// 	}
-	// 	if (i === routes.length - 2) {
-	// 		ft += `\n\t</details>`.repeat(next.depth);
-	// 	}
-	// }
-	// console.log(ft);
-
 	import { onMount } from 'svelte';
 	console.clear();
 
@@ -29,6 +6,8 @@
 	export let data;
 
 	let max_depth = 0;
+	/** @typedef {{depth: number; type: string; href: string; name: string;}} Route */
+	/** @type {Route[]} */
 	let routes = data.routes.map((route) => {
 		let route_path = route.split('/');
 		let route_end = route_path.at(-1) ?? '';
@@ -37,6 +16,7 @@
 
 		return {
 			depth: route_depth,
+			type: data.routes.some((r) => r.includes(route) && r !== route) ? 'folder' : 'file',
 			href: route,
 			name: route_end
 				.split('_')
@@ -47,7 +27,23 @@
 				.join(' '),
 		};
 	});
-	console.log(routes);
+	console.log('routes:', JSON.parse(JSON.stringify(routes)));
+
+	/** @type {Object<string, Route | any>} */
+	let groups = {};
+	/** @param {string[]} path @param {Route} route */
+	function insert(path, route) {
+		let g = groups;
+		for (let i = 0; i < path.length; i++) {
+			if (g[path[i]] == null) g[path[i]] = route;
+			g = g[path[i]];
+		}
+	}
+	for (let i = 0; i < routes.length - 1; i++) {
+		let path = routes[i].href.split('/').slice(1);
+		insert(path, routes[i]);
+	}
+	console.log('groups:', JSON.parse(JSON.stringify(groups)));
 
 	let /** @type {HTMLElement} */ header;
 	let /** @type {HTMLElement} */ open;
@@ -61,50 +57,46 @@
 		open.dataset.active = 'false';
 	}
 
-	let /**@type {HTMLElement}*/ ft;
-	function make_ft() {
-		for (let i = 0; i < routes.length; i++) {
-			let path = routes[i].href.split('/');
+	let ft = ``;
+	for (let i = 0; i < routes.length; i++) {
+		let { depth: cd, href, name } = routes[i]; // [C]urrent [D]epth
+		let pd = routes[i - 1]?.depth ?? 0; // [P]revios [D]epth
+		let nd = routes[i + 1]?.depth ?? 0; // [N]ext [D]epth
 
-			let details_temp = document.getElementById(`ft-${path[1]}`);
-			if (details_temp == null) {
-				ft.innerHTML += `
-				<details class="ft-item is-expandable" id="ft-${routes[i].href}">
-					<summary class="ft-title">${routes[i].name}</summary>
-					</details>`;
-			}
-			let details = details_temp ?? document.getElementById(`ft-${path[1]}`) ?? document.createElement('details'); // last ?? is a hack
+		let a = `<details class="ft-item expandable" id="ft-${href}"><summary class="ft-title"><a class="ft-title" href="${href}">${name}</a></summary>\n`;
+		let b = `\t<div class="ft-item"><a class="ft-title" href="${href}">${name}</a></div>\n`;
+		let c = `</details>\n`;
 
-			for (let j = 2; j < path.length; j++) {
-				details_temp = document.getElementById(`ft-${path[j]}`);
-				if (details_temp == null) {
-					details.innerHTML += `
-					<details class="ft-item is-expandable" id="ft-${path.slice(0, j).join('/')}">
-						<summary class="ft-title">${routes.find((r) => r.href === path.slice(0, j).join('/')).name}</summary>
-					</details>`;
-				} else {
-					details = details_temp;
-				}
-				console.log(details);
-			}
-		}
+		if (cd < nd && pd > cd) ft += c;
+		if (cd < nd) ft += a;
+		if (cd === nd) ft += b;
+		if (cd > nd) ft += b + c;
 	}
-	onMount(make_ft);
+
+	onMount(() => {
+		Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
+			a.addEventListener('click', (e) => {
+				// @ts-ignore
+				e.target.parentNode.click();
+			});
+		});
+	});
 </script>
 
 <div id="wrapper">
 	<header data-active={true} bind:this={header}>
 		<nav id="filetree">
-			<details class="ft-item is-expandable" id="ft-/" bind:this={ft}>
+			<details class="ft-item expandable" id="ft-/">
 				<summary class="ft-title"><a href="/">Home</a></summary>
+				{@html ft}
 			</details>
 
 			<!-- Structure: -->
-			<!--<details class="ft-item is-expandable invisible">
-					<summary class="ft-title">The Soldier Son trilogy</summary>
+			<!--<details class="ft-item expandable invisible">
+					<summary class="ft-title">Name</summary>
 					<div class="ft-item">
-						<a class="ft-title" href="/">SHAMAN'S CROSSING</a>
-						<a class="ft-title" href="/">FOREST MAGE</a>
+						<a class="ft-title" href="/">Name 1</a>
+						<a class="ft-title" href="/">Name 2</a>
 					</div>
 				</details> -->
 		</nav>
@@ -131,6 +123,7 @@
 	:global(*) {
 		box-sizing: border-box;
 		margin: 0;
+		font-family: monospace;
 	}
 	:global(html, body) {
 		height: 100%;
@@ -147,6 +140,7 @@
 		white-space: nowrap;
 		text-overflow: clip;
 		text-wrap: nowrap;
+		-webkit-user-drag: none;
 
 		&:hover {
 			text-decoration: underline;
@@ -190,19 +184,30 @@
 		visibility: hidden;
 	}
 
+	/* for cross browser compatibility */
+	:global(details::-webkit-details-marker) {
+		display: none;
+	}
+	:global(summary) {
+		display: block;
+		cursor: pointer;
+		outline: none;
+	}
+
 	/*  */
 
+	:root {
+		--trans-time: 500ms;
+	}
 	#wrapper {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		height: 100%;
 		position: relative;
 	}
-
 	main {
 		position: relative;
 	}
-
 	header {
 		display: grid;
 
@@ -212,42 +217,80 @@
 		font-size: 1.25rem;
 		padding: 1rem;
 		background: var(--ctp-mocha-mantle);
+		overflow: hidden;
 
-		transition: 1s;
+		transition: var(--trans-time);
 	}
 	:global(header[data-active='false']) {
 		width: 0;
-		padding: 0;
+		padding-left: 0;
+		padding-right: 0;
 	}
 
 	#filetree {
-		height: 100%;
-		/* display: grid; */
-		padding-bottom: 3rem;
+		height: fit-content;
+		padding-left: 2rem;
 		position: relative;
 	}
-	:global(#ft-ul) {
-		padding: 0;
+
+	:global(summary::-webkit-details-marker) {
+		display: none;
 	}
-	:global(ul) {
-		background: rgb(255 0 0 / 0.1);
-		list-style-type: none;
+	:global(details > *:not(summary)) {
 		padding-left: 2rem;
 	}
-	:global(li:has(ul:not(#ft-ul))::before) {
-		content: '\25B6';
-		/* display: inline-block; */
-		margin-right: 6px;
-	}
-	:global(li::before) {
-		display: none;
-	}
-	:global(details::-webkit-details-marker) {
-		display: none;
-	}
+
 	:global(summary) {
-		cursor: pointer;
+		transition: var(--trans-time);
 	}
+	:global(details > summary) {
+		position: relative;
+		transition: var(--trans-time);
+	}
+	:global(details > summary::before) {
+		content: '\f054';
+		position: absolute;
+		left: -1.5rem;
+		transition: var(--trans-time);
+		height: 100%;
+	}
+	:global(details[open] > summary::before) {
+		rotate: 90deg;
+	}
+
+	:global(details) {
+		position: relative;
+	}
+	:global(details[open]::before) {
+		content: '';
+
+		position: absolute;
+		translate: -1.15rem 0;
+		bottom: 0;
+
+		width: 0.1rem;
+		height: calc(100% - 2rem);
+		background: var(--ctp-mocha-text);
+	}
+
+	:global(details[open] > div.ft-item) {
+		position: relative;
+	}
+	:global(details[open] > div.ft-item::before) {
+		content: '\f15b';
+		display: grid;
+		place-items: center;
+
+		position: absolute;
+		left: 0.25rem;
+		height: 100%;
+		width: 1rem;
+
+		font-size: 1rem;
+	}
+	/* :global(.ft-item) {
+		padding-top: 0.5rem;
+	} */
 
 	#settings {
 		display: grid;
@@ -273,7 +316,7 @@
 		background: var(--ctp-mocha-crust);
 		color: var(--ctp-mocha-text);
 
-		transition: 1s;
+		transition: var(--trans-time);
 	}
 	#settings-open {
 		position: absolute;
@@ -286,7 +329,7 @@
 		background: var(--ctp-mocha-mantle);
 		color: var(--ctp-mocha-text);
 
-		transition: 1s;
+		transition: var(--trans-time);
 	}
 
 	/*  */
