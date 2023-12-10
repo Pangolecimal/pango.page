@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	console.clear();
 
 	/** @type {import('./$types').LayoutData} */
@@ -63,8 +64,9 @@
 		let pd = routes[i - 1]?.depth ?? 0; // [P]revios [D]epth
 		let nd = routes[i + 1]?.depth ?? 0; // [N]ext [D]epth
 
-		let a = `<details class="ft-item expandable" id="ft-${href}"><summary class="ft-title"><a class="ft-title" href="${href}">${name}</a></summary>\n`;
-		let b = `\t<div class="ft-item"><a class="ft-title" href="${href}">${name}</a></div>\n`;
+		let a = `<details class="ft-item expandable" id="ft-${href}"><summary class="ft-title">
+					<i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${href}">${name}</a></summary>\n`;
+		let b = `\t<div class="ft-item"><i class="fa-solid fa-file fa-sm"></i><a class="ft-title" href="${href}">${name}</a></div>\n`;
 		let c = `</details>\n`;
 
 		if (cd < nd && pd > cd) ft += c;
@@ -72,6 +74,7 @@
 		if (cd === nd) ft += b;
 		if (cd > nd) ft += b + c;
 	}
+	console.log(ft);
 
 	onMount(() => {
 		Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
@@ -87,22 +90,17 @@
 	<header data-active={true} bind:this={header}>
 		<nav id="filetree">
 			<details class="ft-item expandable" id="ft-/">
-				<summary class="ft-title"><a href="/">Home</a></summary>
+				<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="/">Home</a></summary>
 				{@html ft}
 			</details>
-
-			<!-- Structure: -->
-			<!--<details class="ft-item expandable invisible">
-					<summary class="ft-title">Name</summary>
-					<div class="ft-item">
-						<a class="ft-title" href="/">Name 1</a>
-						<a class="ft-title" href="/">Name 2</a>
-					</div>
-				</details> -->
 		</nav>
 
+		<!-- <div id="location">Location: {$page.url.pathname}</div> -->
+
 		<div id="settings">
-			<i class="fa-solid fa-cog" />
+			<a class="clear" href="https://github.com/Pangolecimal/pango.page">
+				<i class="fa-brands fa-github" />
+			</a>
 			<button id="settings-close" data-active="true" on:click={close_header} bind:this={close}>
 				<i class="fa-solid fa-square-chevron-left" />
 			</button>
@@ -118,8 +116,6 @@
 </div>
 
 <style>
-	@import '$lib/fontawesome/css/all.css';
-	@import '$lib/colors-catppuccin.css';
 	:global(*) {
 		box-sizing: border-box;
 		margin: 0;
@@ -149,6 +145,26 @@
 		&:active {
 			text-decoration: underline;
 			color: var(--ctp-mocha-mauve);
+		}
+	}
+	:global(a.clear) {
+		text-decoration: none;
+		color: var(--ctp-mocha-text);
+		font-weight: bold;
+
+		overflow: visible;
+		white-space: nowrap;
+		text-overflow: clip;
+		text-wrap: nowrap;
+		-webkit-user-drag: none;
+
+		&:hover {
+			text-decoration: underline;
+			/* color: var(--ctp-mocha-text); */
+		}
+		&:active {
+			text-decoration: underline;
+			/* color: var(--ctp-mocha-subtext1); */
 		}
 	}
 	:global(button) {
@@ -204,20 +220,24 @@
 		grid-template-columns: auto 1fr;
 		height: 100%;
 		position: relative;
+		transition: var(--trans-time);
 	}
 	main {
 		position: relative;
+		transition: var(--trans-time);
 	}
 	header {
 		display: grid;
+		/* position: relative; */
 
 		width: 24rem;
 		height: 100%;
 
 		font-size: 1.25rem;
 		padding: 1rem;
+		padding-bottom: 6rem;
 		background: var(--ctp-mocha-mantle);
-		overflow: hidden;
+		overflow-x: hidden;
 
 		transition: var(--trans-time);
 	}
@@ -237,7 +257,7 @@
 		display: none;
 	}
 	:global(details > *:not(summary)) {
-		padding-left: 2rem;
+		padding-left: 1.5rem;
 	}
 
 	:global(summary) {
@@ -247,14 +267,12 @@
 		position: relative;
 		transition: var(--trans-time);
 	}
-	:global(details > summary::before) {
-		content: '\f054';
+	:global(details > summary > i) {
 		position: absolute;
 		left: -1.5rem;
 		transition: var(--trans-time);
-		height: 100%;
 	}
-	:global(details[open] > summary::before) {
+	:global(details[open] > summary > i) {
 		rotate: 90deg;
 	}
 
@@ -266,7 +284,7 @@
 
 		position: absolute;
 		translate: -1.15rem 0;
-		bottom: 0;
+		bottom: 0.1rem;
 
 		width: 0.1rem;
 		height: calc(100% - 2rem);
@@ -276,21 +294,15 @@
 	:global(details[open] > div.ft-item) {
 		position: relative;
 	}
-	:global(details[open] > div.ft-item::before) {
-		content: '\f15b';
-		display: grid;
-		place-items: center;
-
+	:global(details[open] > div.ft-item > i) {
 		position: absolute;
-		left: 0.25rem;
-		height: 100%;
-		width: 1rem;
-
-		font-size: 1rem;
+		left: 0;
+		top: 1rem;
 	}
-	/* :global(.ft-item) {
-		padding-top: 0.5rem;
-	} */
+	:global(div.ft-item, summary) {
+		padding-top: 0.25rem;
+		padding-bottom: 0.25rem;
+	}
 
 	#settings {
 		display: grid;
@@ -304,45 +316,95 @@
 		width: 24rem;
 
 		padding: 1rem;
+		padding-right: 4rem;
 		font-size: 2rem;
 		background: var(--ctp-mocha-crust);
 	}
 	#settings-close {
+		display: grid;
+		place-items: center;
 		position: absolute;
 		right: 0;
+		width: fit-content;
+		height: fit-content;
 
-		font-size: 2rem;
+		border-radius: 1rem 0 0 1rem;
 		padding: 0.5rem;
-		background: var(--ctp-mocha-crust);
+		padding-left: 0.75rem;
+		background: var(--ctp-mocha-mantle);
 		color: var(--ctp-mocha-text);
 
+		font-size: 2rem;
 		transition: var(--trans-time);
 	}
 	#settings-open {
+		display: grid;
+		place-items: center;
 		position: absolute;
 		left: 0;
-		bottom: 0.5rem;
+		bottom: 0.75rem;
+		width: fit-content;
+		height: fit-content;
 
 		border-radius: 0 1rem 1rem 0;
 		font-size: 2rem;
 		padding: 0.5rem;
+		padding-right: 0.75rem;
 		background: var(--ctp-mocha-mantle);
 		color: var(--ctp-mocha-text);
 
 		transition: var(--trans-time);
 	}
 
+	/* #location {
+		font-size: 1rem;
+		align-self: end;
+		justify-self: start;
+		width: 90%;
+
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	} */
+
 	/*  */
 
-	/* @media only screen and (orientation: portrait) {
+	@media only screen and (orientation: portrait) {
 		#wrapper {
 			grid-auto-flow: column;
 			grid-template-columns: 1fr;
-			grid-template-rows: auto 1fr;
+			grid-template-rows: 1fr 0;
 		}
 
 		header {
 			width: 100%;
 		}
-	} */
+		:global(header[data-active='false']) {
+			height: 0;
+			padding-top: 0;
+			padding-bottom: 0;
+		}
+		:global(#wrapper:has(header[data-active='false'])) {
+			grid-template-rows: 0 1fr;
+		}
+		:global(#wrapper:has(header[data-active='true']) main) {
+			opacity: 0;
+			visibility: hidden;
+		}
+
+		#settings {
+			width: 100%;
+		}
+		#settings-close {
+			right: 0.75rem;
+			bottom: 0;
+			rotate: 90deg;
+		}
+		#settings-open {
+			top: 0;
+			right: 0.75rem;
+			left: auto;
+			rotate: 90deg;
+		}
+	}
 </style>
