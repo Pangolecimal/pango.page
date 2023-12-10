@@ -21,7 +21,7 @@ export async function load() {
 		return r.slice('./src/routes'.length, l) || '/'; // `||` instead of `??` to leave '' as '/'
 	});
 
-	routes = Array.from(new Set(routes));
+	routes = Array.from(new Set(routes)).filter((r) => r !== '/');
 
 	return {
 		routes,

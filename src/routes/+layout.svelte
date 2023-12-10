@@ -1,19 +1,43 @@
 <script>
-	// import { onMount } from 'svelte';
+	// // key = href,
+	// /** @type {Object<string, string>[]} */
+	// let ft = [];
+	// for (let i = 0; i < routes.length; i++) {
+	// 	let curr = routes[i];
+	// 	if (prev.depth < curr.depth) {
+	// 		ft += `\n\t<details class="ft-item is-expandable">`;
+	// 		ft += `\n\t\t<summary class="ft-title">${prev.name}</summary>`;
+	// 	}
+	// 	if (prev.depth === curr.depth) {
+	// 		ft += `\n\t\t\t<div class="ft-item">`;
+	// 		ft += `\n\t\t\t\t<a class="ft-title" href="${curr.href}">${curr.name}</a>`;
+	// 		ft += `\n\t\t\t</div>`;
+	// 	}
+	// 	if (curr.depth > next.depth) {
+	// 		ft += `\n\t</details>`;
+	// 	}
+	// 	if (i === routes.length - 2) {
+	// 		ft += `\n\t</details>`.repeat(next.depth);
+	// 	}
+	// }
+	// console.log(ft);
+
+	import { onMount } from 'svelte';
+	console.clear();
 
 	/** @type {import('./$types').LayoutData} */
 	export let data;
 
 	let max_depth = 0;
 	let routes = data.routes.map((route) => {
-		if (route === '/') return { name: 'Home', depth: 1, href: route };
-
 		let route_path = route.split('/');
 		let route_end = route_path.at(-1) ?? '';
-		let route_depth = route_path.length;
+		let route_depth = route_path.length - 1;
 		max_depth = Math.max(max_depth, route_depth);
 
 		return {
+			depth: route_depth,
+			href: route,
 			name: route_end
 				.split('_')
 				.map((r) => {
@@ -21,10 +45,9 @@
 					return r[0].toUpperCase() + r.slice(1);
 				})
 				.join(' '),
-			href: route,
-			depth: route_depth,
 		};
 	});
+	console.log(routes);
 
 	let /** @type {HTMLElement} */ header;
 	let /** @type {HTMLElement} */ open;
@@ -38,44 +61,54 @@
 		open.dataset.active = 'false';
 	}
 
-	let ft = '';
-	ft += '<ul>';
-	for (let i = 0; i < routes.length; i++) {
-		// for (let i = 0; i < max_depth; i++) {
-		// let routes_i = routes.filter((r) => r.href.split('/').length === i);
+	let /**@type {HTMLElement}*/ ft;
+	function make_ft() {
+		for (let i = 0; i < routes.length; i++) {
+			let path = routes[i].href.split('/');
 
-		ft += '<li>';
-		ft += '<a href="' + routes[i].href;
-		ft += `" style="padding-left: ${routes[i].depth * 1.5}rem">` + routes[i].name;
-		ft += '</a>';
+			let details_temp = document.getElementById(`ft-${path[1]}`);
+			if (details_temp == null) {
+				ft.innerHTML += `
+				<details class="ft-item is-expandable" id="ft-${routes[i].href}">
+					<summary class="ft-title">${routes[i].name}</summary>
+					</details>`;
+			}
+			let details = details_temp ?? document.getElementById(`ft-${path[1]}`) ?? document.createElement('details'); // last ?? is a hack
+
+			for (let j = 2; j < path.length; j++) {
+				details_temp = document.getElementById(`ft-${path[j]}`);
+				if (details_temp == null) {
+					details.innerHTML += `
+					<details class="ft-item is-expandable" id="ft-${path.slice(0, j).join('/')}">
+						<summary class="ft-title">${routes.find((r) => r.href === path.slice(0, j).join('/')).name}</summary>
+					</details>`;
+				} else {
+					details = details_temp;
+				}
+				console.log(details);
+			}
+		}
 	}
-	ft += '</ul>';
+	onMount(make_ft);
 </script>
-
-<!-- {#each routes as route, i}
-	<div
-		class="file"
-		data-depth={route.depth}
-		data-active={true}
-		data-index={i}
-		style="padding-left: {route.depth * 2}rem;"
-	>
-		{#if route.depth < max_depth}
-			<i class="fa-solid fa-folder" />
-		{:else}
-			<i class="fa-solid fa-file" />
-		{/if}
-		<a href={route.href}>
-			{route.name}
-		</a>
-	</div>
-{/each} -->
 
 <div id="wrapper">
 	<header data-active={true} bind:this={header}>
-		<div id="filetree">{@html ft}</div>
+		<nav id="filetree">
+			<details class="ft-item is-expandable" id="ft-/" bind:this={ft}>
+				<summary class="ft-title"><a href="/">Home</a></summary>
+			</details>
 
-		<!-- Settings, etc. -->
+			<!-- Structure: -->
+			<!--<details class="ft-item is-expandable invisible">
+					<summary class="ft-title">The Soldier Son trilogy</summary>
+					<div class="ft-item">
+						<a class="ft-title" href="/">SHAMAN'S CROSSING</a>
+						<a class="ft-title" href="/">FOREST MAGE</a>
+					</div>
+				</details> -->
+		</nav>
+
 		<div id="settings">
 			<i class="fa-solid fa-cog" />
 			<button id="settings-close" data-active="true" on:click={close_header} bind:this={close}>
@@ -93,7 +126,7 @@
 </div>
 
 <style>
-	@import '$lib/fontawesome/pro/css/all.css';
+	@import '$lib/fontawesome/css/all.css';
 	@import '$lib/colors-catppuccin.css';
 	:global(*) {
 		box-sizing: border-box;
@@ -144,6 +177,9 @@
 		-ms-user-select: none;
 		user-select: none;
 	}
+	:global(.invisible) {
+		display: none;
+	}
 
 	:global([data-active='true']) {
 		opacity: 100%;
@@ -190,10 +226,28 @@
 		padding-bottom: 3rem;
 		position: relative;
 	}
-	/* .file {
-		padding-top: 1rem;
-		overflow: hidden;
-	} */
+	:global(#ft-ul) {
+		padding: 0;
+	}
+	:global(ul) {
+		background: rgb(255 0 0 / 0.1);
+		list-style-type: none;
+		padding-left: 2rem;
+	}
+	:global(li:has(ul:not(#ft-ul))::before) {
+		content: '\25B6';
+		/* display: inline-block; */
+		margin-right: 6px;
+	}
+	:global(li::before) {
+		display: none;
+	}
+	:global(details::-webkit-details-marker) {
+		display: none;
+	}
+	:global(summary) {
+		cursor: pointer;
+	}
 
 	#settings {
 		display: grid;
