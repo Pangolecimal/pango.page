@@ -1,3 +1,8 @@
+<script>
+	import { base } from '$app/paths';
+	console.log(base);
+</script>
+
 <main>
 	<h1>About</h1>
 
@@ -8,7 +13,7 @@
 	<br />
 	<p>It was built with Svelte v4 and SvelteKit.</p>
 
-	<img src="https://github.com/sveltejs/branding/blob/master/svelte-horizontal.svg?raw=true" alt="svelte" />
+	<img src="{base}/svelte-horizontal.svg" alt="svelte" />
 </main>
 
 <style>
