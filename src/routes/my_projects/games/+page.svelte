@@ -1,1 +1,1 @@
-<h1>GAMES</h1>
+<h1>My Games</h1>

@@ -1,7 +1,5 @@
 <script>
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	console.clear();
 
 	/** @type {import('./$types').LayoutData} */
 	export let data;
@@ -28,23 +26,22 @@
 				.join(' '),
 		};
 	});
-	console.log('routes:', JSON.parse(JSON.stringify(routes)));
+	// console.log(routes);
 
-	/** @type {Object<string, Route | any>} */
-	let groups = {};
-	/** @param {string[]} path @param {Route} route */
-	function insert(path, route) {
-		let g = groups;
-		for (let i = 0; i < path.length; i++) {
-			if (g[path[i]] == null) g[path[i]] = route;
-			g = g[path[i]];
-		}
-	}
-	for (let i = 0; i < routes.length - 1; i++) {
-		let path = routes[i].href.split('/').slice(1);
-		insert(path, routes[i]);
-	}
-	console.log('groups:', JSON.parse(JSON.stringify(groups)));
+	// /** @type {Object<string, Route | any>} */
+	// let groups = {};
+	// /** @param {string[]} path @param {Route} route */
+	// function insert(path, route) {
+	// 	let g = groups;
+	// 	for (let i = 0; i < path.length; i++) {
+	// 		if (g[path[i]] == null) g[path[i]] = route;
+	// 		g = g[path[i]];
+	// 	}
+	// }
+	// for (let i = 0; i < routes.length - 1; i++) {
+	// 	let path = routes[i].href.split('/').slice(1);
+	// 	insert(path, routes[i]);
+	// }
 
 	let /** @type {HTMLElement} */ header;
 	let /** @type {HTMLElement} */ open;
@@ -66,7 +63,7 @@
 
 		let a = `<details class="ft-item expandable" id="ft-${href}"><summary class="ft-title">
 					<i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${href}">${name}</a></summary>\n`;
-		let b = `\t<div class="ft-item"><i class="fa-solid fa-file fa-sm"></i><a class="ft-title" href="${href}">${name}</a></div>\n`;
+		let b = `\t<div class="ft-item"><i class="fa-solid fa-file-lines fa-sm"></i><a class="ft-title" href="${href}">${name}</a></div>\n`;
 		let c = `</details>\n`;
 
 		if (cd < nd && pd > cd) ft += c;
@@ -74,7 +71,6 @@
 		if (cd === nd) ft += b;
 		if (cd > nd) ft += b + c;
 	}
-	console.log(ft);
 
 	onMount(() => {
 		Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
@@ -88,6 +84,7 @@
 
 <div id="wrapper">
 	<header data-active={true} bind:this={header}>
+		<h2>Page Tree</h2>
 		<nav id="filetree">
 			<details class="ft-item expandable" id="ft-/">
 				<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="/">Home</a></summary>
@@ -95,11 +92,12 @@
 			</details>
 		</nav>
 
-		<!-- <div id="location">Location: {$page.url.pathname}</div> -->
-
 		<div id="settings">
-			<a class="clear" href="https://github.com/Pangolecimal/pango.page">
-				<i class="fa-brands fa-github" />
+			<a class="clear" href="https://github.com/Pangolecimal/pango.page" target="_blank" rel="noreferrer noopener"
+				><i class="fa-brands fa-github" />
+			</a>
+			<a class="clear" href="https://vk.com/rehuba" target="_blank" rel="noreferrer noopener">
+				<i class="fa-brands fa-vk" />
 			</a>
 			<button id="settings-close" data-active="true" on:click={close_header} bind:this={close}>
 				<i class="fa-solid fa-square-chevron-left" />
@@ -213,7 +211,7 @@
 	/*  */
 
 	:root {
-		--trans-time: 500ms;
+		--trans-time: 250ms;
 	}
 	#wrapper {
 		display: grid;
@@ -225,19 +223,22 @@
 	main {
 		position: relative;
 		transition: var(--trans-time);
+		overflow: auto;
 	}
 	header {
 		display: grid;
-		/* position: relative; */
+		grid-template-rows: auto 1fr;
 
 		width: 24rem;
-		height: 100%;
+		height: 100dvh;
 
 		font-size: 1.25rem;
 		padding: 1rem;
 		padding-bottom: 6rem;
 		background: var(--ctp-mocha-mantle);
 		overflow-x: hidden;
+
+		white-space: nowrap;
 
 		transition: var(--trans-time);
 	}
@@ -307,16 +308,16 @@
 	#settings {
 		display: grid;
 		grid-auto-flow: column;
-		place-items: center;
+		align-items: center;
+		justify-content: space-evenly;
 		align-self: end;
 
-		position: absolute;
+		position: fixed;
 		left: 0;
 		bottom: 0;
 		width: 24rem;
 
 		padding: 1rem;
-		padding-right: 4rem;
 		font-size: 2rem;
 		background: var(--ctp-mocha-crust);
 	}
@@ -340,7 +341,7 @@
 	#settings-open {
 		display: grid;
 		place-items: center;
-		position: absolute;
+		position: fixed;
 		left: 0;
 		bottom: 0.75rem;
 		width: fit-content;
@@ -356,17 +357,6 @@
 		transition: var(--trans-time);
 	}
 
-	/* #location {
-		font-size: 1rem;
-		align-self: end;
-		justify-self: start;
-		width: 90%;
-
-		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-	} */
-
 	/*  */
 
 	@media only screen and (orientation: portrait) {
@@ -377,12 +367,13 @@
 		}
 
 		header {
+			padding-bottom: 0;
+			padding-top: 5rem;
 			width: 100%;
 		}
 		:global(header[data-active='false']) {
 			height: 0;
-			padding-top: 0;
-			padding-bottom: 0;
+			padding: 0 1rem;
 		}
 		:global(#wrapper:has(header[data-active='false'])) {
 			grid-template-rows: 0 1fr;
@@ -394,11 +385,16 @@
 
 		#settings {
 			width: 100%;
+			top: 0;
+			bottom: auto;
 		}
 		#settings-close {
 			right: 0.75rem;
-			bottom: 0;
+			top: 0;
 			rotate: 90deg;
+			border-radius: 0 1rem 1rem 0;
+			padding-left: 0.5rem;
+			padding-right: 0.75rem;
 		}
 		#settings-open {
 			top: 0;

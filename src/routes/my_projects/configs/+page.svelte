@@ -1,1 +1,1 @@
-<h1>CONFIGS - MY</h1>
+<h1>Configs</h1>

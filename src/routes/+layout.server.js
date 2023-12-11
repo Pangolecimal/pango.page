@@ -16,12 +16,14 @@ export async function load() {
 		});
 	}
 
-	routes = routes.flatMap((r) => {
-		let l = r.lastIndexOf('/');
-		return r.slice('./src/routes'.length, l) || '/'; // `||` instead of `??` to leave '' as '/'
-	});
+	routes = routes
+		.flatMap((r) => {
+			let l = r.lastIndexOf('/');
+			return r.slice('./src/routes'.length, l) ?? '';
+		})
+		.filter((r) => r.length > 0);
 
-	routes = Array.from(new Set(routes)).filter((r) => r !== '/');
+	routes = Array.from(new Set(routes));
 
 	return {
 		routes,
