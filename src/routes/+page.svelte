@@ -1,9 +1,13 @@
+<script>
+	import { base } from '$app/paths';
+</script>
+
 <main>
 	<h1>Home</h1>
 
 	<br />
 
-	<img src="/src/lib/napoleon.png" alt="the is nothing we can do" usemap="#workmap_2" width="400px" />
+	<img src="{base}/napoleon.png" alt="the is nothing we can do" width="400px" />
 	<h2>There is nothing we can do.</h2>
 
 	<br />

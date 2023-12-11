@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 
 	/** @type {import('./$types').LayoutData} */
 	export let data;
@@ -62,8 +63,10 @@
 		let nd = routes[i + 1]?.depth ?? 0; // [N]ext [D]epth
 
 		let a = `<details class="ft-item expandable" id="ft-${href}"><summary class="ft-title">
-					<i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${href}">${name}</a></summary>\n`;
-		let b = `\t<div class="ft-item"><i class="fa-solid fa-file-lines fa-sm"></i><a class="ft-title" href="${href}">${name}</a></div>\n`;
+					<i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${base + href}">${name}</a></summary>\n`;
+		let b = `\t<div class="ft-item"><i class="fa-solid fa-file-lines fa-sm"></i><a class="ft-title" href="${
+			base + href
+		}">${name}</a></div>\n`;
 		let c = `</details>\n`;
 
 		if (cd < nd && pd > cd) ft += c;
@@ -87,7 +90,7 @@
 		<h2>Page Tree</h2>
 		<nav id="filetree">
 			<details class="ft-item expandable" id="ft-/">
-				<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="/">Home</a></summary>
+				<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="{base}/">Home</a></summary>
 				{@html ft}
 			</details>
 		</nav>
