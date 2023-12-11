@@ -3,7 +3,10 @@
 
 	<br />
 
-	<p>Here lies a collection of my games and configs.</p>
+	<p>
+		Here lies a collection of my games, some implementations of useful algorithms and maybe other things in the
+		future.
+	</p>
 </main>
 
 <style>
@@ -12,5 +15,10 @@
 		place-items: center;
 		gap: 1rem;
 		padding: 1rem;
+	}
+
+	p {
+		text-align: center;
+		text-wrap: balance;
 	}
 </style>

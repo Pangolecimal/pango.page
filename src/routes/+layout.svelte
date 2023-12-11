@@ -4,45 +4,7 @@
 
 	/** @type {import('./$types').LayoutData} */
 	export let data;
-
-	let max_depth = 0;
-	/** @typedef {{depth: number; type: string; href: string; name: string;}} Route */
-	/** @type {Route[]} */
-	let routes = data.routes.map((route) => {
-		let route_path = route.split('/');
-		let route_end = route_path.at(-1) ?? '';
-		let route_depth = route_path.length - 1;
-		max_depth = Math.max(max_depth, route_depth);
-
-		return {
-			depth: route_depth,
-			type: data.routes.some((r) => r.includes(route) && r !== route) ? 'folder' : 'file',
-			href: route,
-			name: route_end
-				.split('_')
-				.map((r) => {
-					if (r.length == 0) return r;
-					return r[0].toUpperCase() + r.slice(1);
-				})
-				.join(' '),
-		};
-	});
-	// console.log(routes);
-
-	// /** @type {Object<string, Route | any>} */
-	// let groups = {};
-	// /** @param {string[]} path @param {Route} route */
-	// function insert(path, route) {
-	// 	let g = groups;
-	// 	for (let i = 0; i < path.length; i++) {
-	// 		if (g[path[i]] == null) g[path[i]] = route;
-	// 		g = g[path[i]];
-	// 	}
-	// }
-	// for (let i = 0; i < routes.length - 1; i++) {
-	// 	let path = routes[i].href.split('/').slice(1);
-	// 	insert(path, routes[i]);
-	// }
+	console.log(data.routes.map((r) => r.href));
 
 	let /** @type {HTMLElement} */ header;
 	let /** @type {HTMLElement} */ open;
@@ -56,26 +18,51 @@
 		open.dataset.active = 'false';
 	}
 
-	let ft = ``;
-	for (let i = 0; i < routes.length; i++) {
-		let { depth: cd, href, name } = routes[i]; // [C]urrent [D]epth
-		let pd = routes[i - 1]?.depth ?? 0; // [P]revios [D]epth
-		let nd = routes[i + 1]?.depth ?? 0; // [N]ext [D]epth
+	let /** @type {HTMLElement} */ filetree;
+	function make_filetree() {
+		let ft = ``;
+		for (let i = 0; i < data.routes.length; i++) {
+			let c = data.routes[i];
+			let p = data.routes[i - 1] ?? { depth: 0, type: 'file' };
+			let n = data.routes[i + 1] ?? { depth: 0, type: 'file' };
 
-		let a = `<details class="ft-item expandable" id="ft-${href}"><summary class="ft-title">
-					<i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${base + href}">${name}</a></summary>\n`;
-		let b = `\t<div class="ft-item"><i class="fa-solid fa-file-lines fa-sm"></i><a class="ft-title" href="${
-			base + href
-		}">${name}</a></div>\n`;
-		let c = `</details>\n`;
+			let cd = c.depth;
+			let pd = p.depth;
+			let nd = n.depth;
 
-		if (cd < nd && pd > cd) ft += c;
-		if (cd < nd) ft += a;
-		if (cd === nd) ft += b;
-		if (cd > nd) ft += b + c;
+			let A = `<details class="ft-item expandable" id="ft-${
+				c.href
+			}"><summary class="ft-title">\n\t<i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${
+				base + c.href
+			}">${c.name}</a></summary>\n`;
+			let B = `\t<div class="ft-item"><i class="fa-solid fa-file-lines fa-sm"></i><a class="ft-title" href="${
+				base + c.href
+			}">${c.name}</a></div>\n`;
+			let C = `</details>\n`;
+
+			let d = 'folder';
+			let f = 'file';
+
+			let delta = '';
+
+			if (cd < nd && pd > cd) delta += C; // ?
+			if (cd < nd) delta += A;
+			if (cd === nd) delta += B;
+			if (cd > nd) delta += B + C;
+
+			// if (href === '/my_projects/games') {
+			// 	console.log(delta);
+			// 	console.log(ft);
+			// }
+
+			ft += delta;
+		}
+
+		filetree.innerHTML += ft;
 	}
 
 	onMount(() => {
+		make_filetree();
 		Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
 			a.addEventListener('click', (e) => {
 				// @ts-ignore
@@ -89,9 +76,8 @@
 	<header data-active={true} bind:this={header}>
 		<h2>Page Tree</h2>
 		<nav id="filetree">
-			<details class="ft-item expandable" id="ft-/">
+			<details class="ft-item expandable" id="ft-/" bind:this={filetree}>
 				<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="{base}/">Home</a></summary>
-				{@html ft}
 			</details>
 		</nav>
 
@@ -211,7 +197,7 @@
 		outline: none;
 	}
 
-	/*  */
+	/* globals for all pages ^^^ | locals for layout vvv */
 
 	:root {
 		--trans-time: 250ms;
@@ -373,17 +359,17 @@
 			padding-bottom: 0;
 			padding-top: 5rem;
 			width: 100%;
+			height: 100%;
 		}
 		:global(header[data-active='false']) {
 			height: 0;
 			padding: 0 1rem;
 		}
 		:global(#wrapper:has(header[data-active='false'])) {
-			grid-template-rows: 0 1fr;
+			grid-template-rows: 0fr 1fr;
 		}
-		:global(#wrapper:has(header[data-active='true']) main) {
-			opacity: 0;
-			visibility: hidden;
+		:global(#wrapper:has(header[data-active='true'])) {
+			grid-template-rows: 1fr 1fr;
 		}
 
 		#settings {

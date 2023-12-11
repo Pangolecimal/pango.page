@@ -1,6 +1,5 @@
 <script>
 	import { base } from '$app/paths';
-	console.log(base);
 </script>
 
 <main>
@@ -11,8 +10,7 @@
 	<p>This is My Personal Page.</p>
 
 	<br />
-	<p>It was built with Svelte v4 and SvelteKit.</p>
-
+	<p>Built with Svelte v4 and SvelteKit.</p>
 	<img src="{base}/svelte-horizontal.svg" alt="svelte" />
 </main>
 
