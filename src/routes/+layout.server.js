@@ -26,8 +26,8 @@ export async function load() {
 	hrefs = Array.from(new Set(hrefs));
 
 	let max_depth = 0;
-	/** @typedef {{depth: number; type: string; href: string; name: string;}} Route */
-	/** @type {Route[]} */
+	// /** @typedef {{depth: number; type: string; href: string; name: string;}} Route */
+	// /** @type {Route[]} */
 	let routes = hrefs.map((route) => {
 		let route_path = route.split('/');
 		let route_end = route_path.at(-1) ?? '';

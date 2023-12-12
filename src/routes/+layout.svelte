@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 
+	console.clear();
+
 	/** @type {import('./$types').LayoutData} */
 	export let data;
 	console.log(data.routes.map((r) => r.href));
@@ -20,7 +22,7 @@
 
 	let /** @type {HTMLElement} */ filetree;
 	function make_filetree() {
-		let ft = ``;
+		let ft = [];
 		for (let i = 0; i < data.routes.length; i++) {
 			let c = data.routes[i];
 			let p = data.routes[i - 1] ?? { depth: 0, type: 'file' };
@@ -32,51 +34,55 @@
 
 			let A = `<details class="ft-item expandable" id="ft-${
 				c.href
-			}"><summary class="ft-title">\n\t<i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${
+			}">\n\t<summary class="ft-title"><i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${
 				base + c.href
 			}">${c.name}</a></summary>\n`;
-			let B = `\t<div class="ft-item"><i class="fa-solid fa-file-lines fa-sm"></i><a class="ft-title" href="${
+			let B = `\t<div class="ft-item">\n\t\t<i class="fa-solid fa-file-lines fa-sm"></i>\n\t\t<a class="ft-title" href="${
 				base + c.href
-			}">${c.name}</a></div>\n`;
+			}">${c.name}</a>\n\t</div>\n`;
 			let C = `</details>\n`;
 
-			let d = 'folder';
-			let f = 'file';
+			let d = '';
 
-			let delta = '';
+			if (pd < cd && cd < nd) d += A;
+			if (pd < cd && cd === nd) d += B;
+			if (pd < cd && cd > nd) d += B + C;
 
-			if (cd < nd && pd > cd) delta += C; // ?
-			if (cd < nd) delta += A;
-			if (cd === nd) delta += B;
-			if (cd > nd) delta += B + C;
+			if (pd === cd && cd < nd) d += A;
+			if (pd === cd && cd === nd) d += B;
+			if (pd === cd && cd > nd) d += B + C;
 
-			// if (href === '/my_projects/games') {
-			// 	console.log(delta);
-			// 	console.log(ft);
-			// }
+			if (pd > cd && cd < nd) d += C + A;
+			if (pd > cd && cd === nd) d += C + B;
+			if (pd > cd && cd > nd) d += B + C;
 
-			ft += delta;
+			ft.push(d);
 		}
 
-		filetree.innerHTML += ft;
+		console.log(`<details class="ft-item expandable" id="ft-/">
+	<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="{base}/">Home</a></summary>`);
+		ft.forEach((l) => console.log(l));
+		console.log(`</details>`);
+
+		filetree.innerHTML += ft.join('\n');
 	}
 
 	onMount(() => {
 		make_filetree();
-		Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
-			a.addEventListener('click', (e) => {
-				// @ts-ignore
-				e.target.parentNode.click();
-			});
-		});
+		// Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
+		// 	a.addEventListener('click', (e) => {
+		// 		// @ts-ignore
+		// 		// e.target.parentNode.click();
+		// 	});
+		// });
 	});
 </script>
 
 <div id="wrapper">
 	<header data-active={true} bind:this={header}>
 		<h2>Page Tree</h2>
-		<nav id="filetree">
-			<details class="ft-item expandable" id="ft-/" bind:this={filetree}>
+		<nav id="filetree" bind:this={filetree}>
+			<details class="ft-item expandable" id="ft-/">
 				<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="{base}/">Home</a></summary>
 			</details>
 		</nav>
