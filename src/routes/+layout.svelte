@@ -20,27 +20,13 @@
 		open.dataset.active = 'false';
 	}
 
-	/* 
-	folder:
-		details ( class="ft-item expandable" id={curr.href} ) {
-			summary ( class="ft-title" ) {
-				i ( class="fa-solid fa-chevron-right" ) { }
-				a ( class="ft-title" href={base + curr.href} ) { curr.name }
-			}
-			[...files]
-		}
-
-	file:
-		div ( class="ft-item" ) {
-			i ( class="fa-solid fa-file-lines fa-sm" ) {}
-			a ( class="ft-title" href={base + curr.href} ) { curr.name }
-		}
-	*/
-
 	/** @param {string} name @param {string} href */
 	function make_details(name, href) {
 		let existing = document.getElementById(`ft-${href}`);
-		if (existing != null) throw console.error('details already exist:', existing);
+		if (existing != null) {
+			console.warn('details already exist:', arguments, existing);
+			return existing;
+		}
 
 		let details = document.createElement('details');
 		details.className = 'ft-item expandable';
@@ -119,12 +105,6 @@
 
 	onMount(() => {
 		make_filetree();
-		// Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
-		// 	a.addEventListener('click', (e) => {
-		// 		// @ts-ignore
-		// 		// e.target.parentNode.click();
-		// 	});
-		// });
 	});
 </script>
 
@@ -161,14 +141,19 @@
 <style>
 	:global(*) {
 		box-sizing: border-box;
-		margin: 0;
 		font-family: monospace;
+	}
+	:global(*:not(ul, ol)) {
+		margin: 0;
+	}
+	:global(:is(ol, ul) > li) {
+		padding-bottom: 1rem;
 	}
 	:global(html, body) {
 		height: 100%;
 		background: var(--ctp-mocha-base);
 		color: var(--ctp-mocha-text);
-		font-size: 1rem;
+		font-size: 1.1rem;
 	}
 	:global(a) {
 		text-decoration: none;
@@ -405,6 +390,10 @@
 	/*  */
 
 	@media only screen and (orientation: portrait) {
+		:global(html, body) {
+			font-size: 1rem;
+		}
+
 		#wrapper {
 			grid-auto-flow: column;
 			grid-template-columns: 1fr;
@@ -412,7 +401,7 @@
 		}
 
 		header {
-			padding-bottom: 0;
+			padding-bottom: 2rem;
 			padding-top: 5rem;
 			width: 100%;
 			height: 100%;
@@ -425,7 +414,7 @@
 			grid-template-rows: 0fr 1fr;
 		}
 		:global(#wrapper:has(header[data-active='true'])) {
-			grid-template-rows: 1fr 1fr;
+			grid-template-rows: 2fr 3fr;
 		}
 
 		#settings {

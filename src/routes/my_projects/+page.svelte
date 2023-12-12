@@ -14,7 +14,7 @@
 		display: grid;
 		place-items: center;
 		gap: 1rem;
-		padding: 1rem;
+		padding: 2rem;
 	}
 
 	p {

@@ -3,7 +3,7 @@
 </script>
 
 <main>
-	<h1>Home</h1>
+	<h1>Programming Languages I Know</h1>
 
 	<br />
 

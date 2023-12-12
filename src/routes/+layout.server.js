@@ -36,6 +36,7 @@ export async function load() {
 
 		return {
 			depth: route_depth,
+			type: hrefs.some((r) => r.includes(route) && r !== route) ? 'folder' : 'file',
 			href: route,
 			name: route_end
 				.split('_')
@@ -44,24 +45,51 @@ export async function load() {
 					return r[0].toUpperCase() + r.slice(1);
 				})
 				.join(' '),
-			type: hrefs.some((r) => r.includes(route) && r !== route) ? 'folder' : 'file',
 		};
 	});
 
-	// /** @type {Object<string, Route | any>} */
-	// let groups = {};
-	// /** @param {string[]} path @param {Route} route */
-	// function insert(path, route) {
-	// 	let g = groups;
-	// 	for (let i = 0; i < path.length; i++) {
-	// 		if (g[path[i]] == null) g[path[i]] = route;
-	// 		g = g[path[i]];
-	// 	}
-	// }
-	// for (let i = 0; i < routes.length - 1; i++) {
-	// 	let path = routes[i].href.split('/').slice(1);
-	// 	insert(path, routes[i]);
-	// }
+	/** @param {any | any[]} any */
+	function copy(any) {
+		return JSON.parse(JSON.stringify(any));
+	}
 
-	return { routes, max_depth };
+	/** @type {any[]} */
+	let sorted = JSON.parse(JSON.stringify(routes));
+
+	/** @param {any[]} values @param {number} depth */
+	function foo(values, depth) {
+		if (depth > max_depth || values.length === 0 || !values.some((v) => v.depth === depth)) {
+			return values;
+		}
+
+		let t = [[], copy(values)];
+
+		let offset = 0;
+		for (let i = 0; i < values.length; i++) {
+			if ((values[i].depth === depth || (i === 0 && values[i].depth < depth)) && values[i].type === 'file') {
+				let el = t[1].splice(i - offset, 1);
+				t[0].push(...el);
+				offset += 1;
+			}
+		}
+
+		t.push([]);
+		for (let i = 0; i < t[1].length; i++) {
+			if (t[1][i].depth === depth && t[1][i].type === 'folder') {
+				t.push([]);
+			}
+			t[t.length - 1].push(t[1][i]);
+		}
+
+		t.splice(1, 1);
+
+		for (let i = 1; i < t.length; i++) {
+			t[i] = foo(t[i], depth + 1);
+		}
+
+		return t.reduceRight((acc, cur) => acc.concat(cur));
+	}
+	sorted = foo(sorted, 1);
+
+	return { routes: sorted, max_depth };
 }
