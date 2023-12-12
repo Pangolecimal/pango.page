@@ -37,12 +37,6 @@
 		padding: 1rem;
 	}
 
-	p,
-	ul,
-	li {
-		font-size: 1.25rem;
-	}
-
 	ul > li {
 		margin-left: 2rem;
 		margin-top: 1rem;

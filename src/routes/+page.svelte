@@ -11,7 +11,9 @@
 	<h2>There is nothing we can do.</h2>
 
 	<br />
-	<p><i>To navigate between pages use the Page Tree.</i></p>
+	<p>
+		<i>To navigate between pages use the</i> <b>PageTree<sup><i class="fa-solid fa-trademark fa-xs" /></sup></b>
+	</p>
 </main>
 
 <style>

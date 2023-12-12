@@ -36,7 +36,6 @@ export async function load() {
 
 		return {
 			depth: route_depth,
-			type: hrefs.some((r) => r.includes(route) && r !== route) ? 'folder' : 'file',
 			href: route,
 			name: route_end
 				.split('_')
@@ -45,6 +44,7 @@ export async function load() {
 					return r[0].toUpperCase() + r.slice(1);
 				})
 				.join(' '),
+			type: hrefs.some((r) => r.includes(route) && r !== route) ? 'folder' : 'file',
 		};
 	});
 

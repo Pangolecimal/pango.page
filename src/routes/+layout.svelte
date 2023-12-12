@@ -6,7 +6,7 @@
 
 	/** @type {import('./$types').LayoutData} */
 	export let data;
-	console.log(data.routes.map((r) => r.href));
+	console.log(data.routes);
 
 	let /** @type {HTMLElement} */ header;
 	let /** @type {HTMLElement} */ open;
@@ -20,68 +20,114 @@
 		open.dataset.active = 'false';
 	}
 
-	let /** @type {HTMLElement} */ filetree;
-	function make_filetree() {
-		let ft = [];
-		for (let i = 0; i < data.routes.length; i++) {
-			let c = data.routes[i];
-			let p = data.routes[i - 1] ?? { depth: 0, type: 'file' };
-			let n = data.routes[i + 1] ?? { depth: 0, type: 'file' };
-
-			let cd = c.depth;
-			let pd = p.depth;
-			let nd = n.depth;
-
-			let A = `<details class="ft-item expandable" id="ft-${
-				c.href
-			}">\n\t<summary class="ft-title"><i class="fa-solid fa-chevron-right"></i><a class="ft-title" href="${
-				base + c.href
-			}">${c.name}</a></summary>\n`;
-			let B = `\t<div class="ft-item">\n\t\t<i class="fa-solid fa-file-lines fa-sm"></i>\n\t\t<a class="ft-title" href="${
-				base + c.href
-			}">${c.name}</a>\n\t</div>\n`;
-			let C = `</details>\n`;
-
-			let d = '';
-
-			if (pd < cd && cd < nd) d += A;
-			if (pd < cd && cd === nd) d += B;
-			if (pd < cd && cd > nd) d += B + C;
-
-			if (pd === cd && cd < nd) d += A;
-			if (pd === cd && cd === nd) d += B;
-			if (pd === cd && cd > nd) d += B + C;
-
-			if (pd > cd && cd < nd) d += C + A;
-			if (pd > cd && cd === nd) d += C + B;
-			if (pd > cd && cd > nd) d += B + C;
-
-			ft.push(d);
+	/* 
+	folder:
+		details ( class="ft-item expandable" id={curr.href} ) {
+			summary ( class="ft-title" ) {
+				i ( class="fa-solid fa-chevron-right" ) { }
+				a ( class="ft-title" href={base + curr.href} ) { curr.name }
+			}
+			[...files]
 		}
 
-		console.log(`<details class="ft-item expandable" id="ft-/">
-	<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="{base}/">Home</a></summary>`);
-		ft.forEach((l) => console.log(l));
-		console.log(`</details>`);
+	file:
+		div ( class="ft-item" ) {
+			i ( class="fa-solid fa-file-lines fa-sm" ) {}
+			a ( class="ft-title" href={base + curr.href} ) { curr.name }
+		}
+	*/
 
-		filetree.innerHTML += ft.join('\n');
+	/** @param {string} name
+	 * @param {string} href */
+	function make_details(name, href) {
+		let existing = document.getElementById(`ft-${href}`);
+		if (existing != null) throw console.error('details already exist:', existing);
+
+		let details = document.createElement('details');
+		details.className = 'ft-item expandable';
+		details.id = `ft-${href}`;
+
+		let summary = document.createElement('summary');
+		summary.className = 'ft-title';
+
+		let i = document.createElement('i');
+		i.className = 'fa-solid fa-chevron-right';
+
+		let a = document.createElement('a');
+		a.className = 'ft-title';
+		a.href = base + href;
+		a.innerText = name;
+
+		summary.appendChild(i);
+		summary.appendChild(a);
+
+		details.appendChild(summary);
+
+		return details;
+	}
+
+	/** @param {string} name
+	 * @param {string} href */
+	function make_item(name, href) {
+		let div = document.createElement('div');
+		div.className = 'ft-item';
+
+		let i = document.createElement('i');
+		i.className = 'fa-solid fa-file-lines fa-sm';
+
+		let a = document.createElement('a');
+		a.className = 'ft-title';
+		a.href = base + href;
+		a.innerText = name;
+
+		div.appendChild(i);
+		div.appendChild(a);
+
+		return div;
+	}
+
+	function make_filetree() {
+		for (let i = 0; i < data.routes.length; i++) {
+			let curr = data.routes[i];
+			let path = curr.href.split('/');
+
+			let details = document.getElementById('ft-/');
+			let prev_details = details;
+
+			// start at 1 because 0 is guaranteed to work (it is the root)
+			for (let j = 1; j < path.length - 1; j++) {
+				let path_so_far = path.slice(0, j + 1).join('/');
+				prev_details = details;
+				details = document.getElementById(`ft-${path_so_far}`);
+
+				if (details == null) {
+					let name = data.routes.find((r) => r.href === path_so_far)?.name ?? '404';
+					details = make_details(name, path_so_far);
+					prev_details?.appendChild(details);
+				}
+			}
+
+			if (curr.type === 'folder') {
+				prev_details = details;
+				details = make_details(curr.name, path.join('/'));
+				prev_details?.appendChild(details);
+			}
+			if (curr.type === 'file') {
+				let file = make_item(curr.name, path.join('/'));
+				details?.appendChild(file);
+			}
+		}
 	}
 
 	onMount(() => {
 		make_filetree();
-		// Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
-		// 	a.addEventListener('click', (e) => {
-		// 		// @ts-ignore
-		// 		// e.target.parentNode.click();
-		// 	});
-		// });
 	});
 </script>
 
 <div id="wrapper">
 	<header data-active={true} bind:this={header}>
 		<h2>Page Tree</h2>
-		<nav id="filetree" bind:this={filetree}>
+		<nav id="filetree">
 			<details class="ft-item expandable" id="ft-/">
 				<summary class="ft-title"><i class="fa-solid fa-chevron-right" /><a href="{base}/">Home</a></summary>
 			</details>
