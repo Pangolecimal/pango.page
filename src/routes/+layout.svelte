@@ -6,7 +6,7 @@
 
 	/** @type {import('./$types').LayoutData} */
 	export let data;
-	console.log(data.routes);
+	// console.log(data.routes);
 
 	let /** @type {HTMLElement} */ header;
 	let /** @type {HTMLElement} */ open;

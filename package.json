@@ -13,7 +13,6 @@
     "deploy": "bunx gh-pages -d build"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^2.0.0",
     "@sveltejs/kit": "^1.20.4",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
