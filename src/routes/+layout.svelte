@@ -37,8 +37,7 @@
 		}
 	*/
 
-	/** @param {string} name
-	 * @param {string} href */
+	/** @param {string} name @param {string} href */
 	function make_details(name, href) {
 		let existing = document.getElementById(`ft-${href}`);
 		if (existing != null) throw console.error('details already exist:', existing);
@@ -66,8 +65,7 @@
 		return details;
 	}
 
-	/** @param {string} name
-	 * @param {string} href */
+	/** @param {string} name @param {string} href */
 	function make_item(name, href) {
 		let div = document.createElement('div');
 		div.className = 'ft-item';
@@ -121,6 +119,12 @@
 
 	onMount(() => {
 		make_filetree();
+		// Array.from(document.querySelectorAll('summary > a')).forEach((a) => {
+		// 	a.addEventListener('click', (e) => {
+		// 		// @ts-ignore
+		// 		// e.target.parentNode.click();
+		// 	});
+		// });
 	});
 </script>
 
