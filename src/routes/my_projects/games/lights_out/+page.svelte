@@ -107,8 +107,15 @@
 </script>
 
 <div id="game">
-	<div class="header">
-		<h1><a href="https://en.wikipedia.org/wiki/Lights_Out_(game)">Lights Out</a></h1>
+	<div class="menu">
+		<h2>
+			Lights Out (<a
+				href="https://en.wikipedia.org/wiki/Lights_Out_(game)"
+				target="_blank"
+				rel="noreferrer noopener">Wiki</a
+			>)
+		</h2>
+		<button on:click={handle_random}>Randomize</button>
 	</div>
 	<div class="main">
 		<div id="grid" data-size={GRID_SIZE}>
@@ -116,23 +123,6 @@
 				<div class="cell" data-on={true} data-id={i} />
 			{/each}
 		</div>
-	</div>
-	<div class="footer">
-		<button on:click={handle_random}>Randomize</button>
-		<button
-			on:click={() => {
-				GRID_SIZE = Math.min(GRID_SIZE + 1, 20);
-				update();
-			}}
-			>Increase Board Size
-		</button>
-		<button
-			on:click={() => {
-				GRID_SIZE = Math.max(GRID_SIZE - 1, 3);
-				update();
-			}}
-			>Decrease Board Size
-		</button>
 	</div>
 </div>
 
@@ -151,36 +141,47 @@
 
 	div#game {
 		display: grid;
-		padding: 0 1rem;
+		padding: 2rem;
+		gap: 2rem;
 		width: 100%;
 		height: calc(100dvh - 5rem);
 
 		/* grid-template-columns: 1fr 2fr 1fr;
 		grid-template-rows: 1fr; */
-		grid-template-areas:
-			'h f'
-			'm m';
+		grid-template-areas: 'm h';
 	}
 
 	@media only screen and (orientation: portrait) {
 		div#game {
-			grid-template-rows: 1fr 2fr 1fr;
+			grid-template-rows: 1fr 2fr;
 			grid-template-columns: 1fr;
 			grid-template-areas:
 				'h'
-				'm'
-				'f';
+				'm';
 		}
 	}
 
-	.header {
+	.menu {
 		display: grid;
 		place-items: center;
+
 		grid-area: h;
+		width: 100%;
+		height: 100%;
 	}
-	.header > h1 {
-		display: grid;
-		place-items: center;
+	button {
+		width: fit-content;
+		height: fit-content;
+
+		border: none;
+		border-radius: 0.25rem;
+
+		padding: 0.5rem;
+		font-size: 1.25rem;
+		font-weight: 900;
+
+		color: var(--ctp-mocha-base);
+		background: var(--ctp-mocha-peach);
 	}
 
 	.main {
@@ -192,7 +193,7 @@
 	.main > #grid {
 		--padding: 0.5rem;
 		--size: 5;
-		--cell-size: calc(min(40vw, 80vh) / var(--size));
+		--cell-size: calc(min(60vmin, 30rem) / var(--size));
 		--cell-gap: calc(var(--padding) * 0.5);
 		--grid-size: calc(var(--size) * var(--cell-size) + (var(--size) + 1) * var(--cell-gap) + var(--padding) * 2);
 
@@ -227,36 +228,5 @@
 	}
 	:global(#grid > .cell[data-on='true']) {
 		background: var(--on);
-	}
-
-	.footer {
-		display: grid;
-		grid-area: f;
-		place-items: center;
-		place-self: center;
-		gap: 1rem;
-
-		& > button {
-			width: 100%;
-			height: 100%;
-
-			border: none;
-			border-radius: 0.25rem;
-
-			padding: 0.25rem;
-			font-size: 1.5rem;
-			font-weight: 900;
-
-			color: var(--ctp-mocha-base);
-			background: var(--ctp-mocha-peach);
-
-			&:hover {
-				filter: brightness(125%);
-			}
-
-			&:on {
-				filter: brightness(150%);
-			}
-		}
 	}
 </style>
