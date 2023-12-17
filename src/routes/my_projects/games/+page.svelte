@@ -38,7 +38,6 @@
 	}
 
 	ul > li {
-		margin-left: 2rem;
-		margin-top: 1rem;
+		padding-top: 1rem;
 	}
 </style>

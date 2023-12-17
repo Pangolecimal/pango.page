@@ -4,28 +4,28 @@
 
 <main>
 	<div class="content">
-		<h1>Neovim</h1>
+		<h1 class="full">Neovim</h1>
 
-		<img class="popout" src="{base}/neovim-mark.svg" alt="Neovim" width="200px" />
+		<img class="popout" src="{base}/images/neovim-mark.svg" alt="Neovim" width="200px" />
 
-		<p class="popup">
+		<p class="feature">
 			Neovim is a highly extensible and improved version of the Vim text editor. It aims to provide a more
 			maintainable and extensible codebase while preserving the powerful editing features of Vim. Neovim is known
 			for its focus on modularity, enabling users to extend and customize their editing environment with plugins
 			and configurations.
 		</p>
 
-		<h2>Key Features of Neovim</h2>
-		<ul>
+		<h2 class="feature">Key Features of Neovim</h2>
+		<ul class="popout">
 			<li>Modular Architecture</li>
 			<li>Built-in Terminal Emulator</li>
 			<li>Enhanced Plugin Support</li>
 			<li>Modern Configuration Options</li>
 		</ul>
 
-		<h2>Getting Started</h2>
-		<p>To start using Neovim, you can follow these steps:</p>
-		<ol>
+		<h2 class="feature">Getting Started</h2>
+		<p class="popout">To start using Neovim, you can follow these steps:</p>
+		<ol class="feature">
 			<li>
 				Install Neovim on your system. You can find installation instructions on the <a
 					href="https://neovim.io/">official Neovim website</a
@@ -45,12 +45,12 @@
 			</li>
 		</ol>
 
-		<h2>Community and Resources</h2>
-		<p>
+		<h2 class="feature">Community and Resources</h2>
+		<p class="feature">
 			Join the Neovim community to connect with other users, share configurations, and stay updated on the latest
 			developments:
 		</p>
-		<ul>
+		<ul class="feature">
 			<li>Official Website: <a href="https://neovim.io/">Neovim</a></li>
 			<li>GitHub Repository: <a href="https://github.com/neovim/neovim">Neovim on GitHub</a></li>
 			<li>Community Chat: <a href="https://gitter.im/neovim/neovim">Neovim Gitter Chat</a></li>
@@ -60,10 +60,8 @@
 
 <style>
 	main {
-		display: grid;
-		/* place-items: center; */
-		gap: 2rem;
-		padding: 2rem;
+		padding: 2rem 0;
+		height: 100%;
 	}
 	img {
 		width: min(30ch, 60%);
@@ -78,15 +76,15 @@
 	}
 	p {
 		text-align: justify;
-		text-indent: 4rem;
+		text-indent: 4ch;
 	}
 
 	.content {
 		--gap: clamp(1rem, 6vw, 3rem);
 		--full: minmax(var(--gap), 1fr);
 		--content: min(50ch, 100% - var(--gap) * 2);
-		--popout: minmax(0, 2rem);
-		--feature: minmax(0, 5rem);
+		--popout: minmax(0, 3rem);
+		--feature: minmax(0, 6rem);
 
 		display: grid;
 		gap: 2rem;
@@ -110,5 +108,16 @@
 	}
 	.full {
 		grid-column: full;
+	}
+
+	@media only screen and (orientation: portrait) {
+		:root {
+			font-size: 1.25rem;
+		}
+
+		.content {
+			--gap: clamp(0rem, 6vw, 1rem);
+			--content: min(20ch, 100% - var(--gap) * 2);
+		}
 	}
 </style>

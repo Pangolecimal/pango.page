@@ -4,11 +4,11 @@
 
 <main>
 	<div class="content">
-		<h1>Nix and NixOS</h1>
+		<h1 class="full">Nix and NixOS</h1>
 
-		<img class="popout" src="{base}/nix-snowflake.svg" alt="NixOs" width="400px" />
+		<img class="popout" src="{base}/images/nix-snowflake.svg" alt="NixOs" width="400px" />
 
-		<p class="popout">
+		<p class="feature">
 			Nix is a purely functional package manager that provides a reliable and reproducible way to manage software
 			packages. It is designed to be independent of the host system, allowing users to create isolated
 			environments for their applications.
@@ -20,7 +20,7 @@
 			and reproducible manner.
 		</p>
 
-		<h2>Key Features of Nix</h2>
+		<h2 class="popout">Key Features of Nix</h2>
 		<ul>
 			<li>Functional Package Management</li>
 			<li>Isolated Environments</li>
@@ -28,7 +28,7 @@
 			<li>Atomic Upgrades and Rollbacks</li>
 		</ul>
 
-		<h2>Key Features of NixOS</h2>
+		<h2 class="popout">Key Features of NixOS</h2>
 		<ul>
 			<li>Declarative System Configuration</li>
 			<li>Immutable System State</li>
@@ -36,7 +36,7 @@
 			<li>Configuration Rollbacks</li>
 		</ul>
 
-		<h2>Getting Started</h2>
+		<h2 class="popout">Getting Started</h2>
 		<p>To get started with Nix and NixOS, you can visit the official websites:</p>
 		<ul>
 			<li><a href="https://nixos.org/">NixOS Official Website</a></li>
@@ -57,10 +57,7 @@
 
 <style>
 	main {
-		display: grid;
-		/* place-items: center; */
-		gap: 2rem;
-		padding: 2rem;
+		padding-top: 2rem;
 	}
 	img {
 		width: min(30ch, 60%);
@@ -76,15 +73,15 @@
 
 	p {
 		text-align: justify;
-		text-indent: 4rem;
+		text-indent: 4ch;
 	}
 
 	.content {
 		--gap: clamp(1rem, 6vw, 3rem);
 		--full: minmax(var(--gap), 1fr);
 		--content: min(50ch, 100% - var(--gap) * 2);
-		--popout: minmax(0, 2rem);
-		--feature: minmax(0, 5rem);
+		--popout: minmax(0, 3rem);
+		--feature: minmax(0, 6rem);
 
 		display: grid;
 		gap: 2rem;
@@ -108,5 +105,16 @@
 	}
 	.full {
 		grid-column: full;
+	}
+
+	@media only screen and (orientation: portrait) {
+		:root {
+			font-size: 1.25rem;
+		}
+
+		.content {
+			--gap: clamp(0rem, 6vw, 1rem);
+			--content: min(20ch, 100% - var(--gap) * 2);
+		}
 	}
 </style>

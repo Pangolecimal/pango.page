@@ -7,7 +7,7 @@
 
 	<br />
 
-	<img src="{base}/napoleon.png" alt="the is nothing we can do" width="400px" />
+	<img src="{base}/images/napoleon.png" alt="the is nothing we can do" width="400px" />
 	<h2>There is nothing we can do.</h2>
 
 	<br />

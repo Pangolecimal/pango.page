@@ -40,8 +40,9 @@
 		setTimeout(handle_random, 100);
 	}
 
-	/**	@param {HTMLElement} target */
+	/**	@param {EventTarget} target */
 	function handle_cell(target) {
+		// @ts-ignore
 		const id = parseInt(target.dataset.id, 10);
 		const pos = id2pos(id);
 		const poss = [{ x: pos.x, y: pos.y }];
@@ -96,6 +97,7 @@
 	onMount(() => {
 		Array.from(document.querySelectorAll('.cell')).forEach((cell) => {
 			cell.addEventListener('click', (e) => {
+				// @ts-ignore
 				handle_cell(e.target);
 			});
 		});

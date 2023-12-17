@@ -11,7 +11,7 @@
 
 	<br />
 	<p>Built with Svelte v4 and SvelteKit.</p>
-	<img src="{base}/svelte-horizontal.svg" alt="svelte" />
+	<img src="{base}/images/svelte-horizontal.svg" alt="svelte" />
 </main>
 
 <style>

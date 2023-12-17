@@ -10,7 +10,6 @@
 
 	let /** @type {HTMLElement} */ header;
 	let /** @type {HTMLElement} */ open;
-	let /** @type {HTMLElement} */ close;
 	function close_header() {
 		header.dataset.active = 'false';
 		open.dataset.active = 'true';
@@ -109,7 +108,7 @@
 </script>
 
 <div id="wrapper">
-	<header data-active={true} bind:this={header}>
+	<header data-active={false} bind:this={header}>
 		<h2>Page Tree</h2>
 		<nav id="filetree">
 			<details class="ft-item expandable" id="ft-/">
@@ -124,18 +123,18 @@
 			<a class="clear" href="https://vk.com/rehuba" target="_blank" rel="noreferrer noopener">
 				<i class="fa-brands fa-vk" />
 			</a>
-			<button id="settings-close" data-active="true" on:click={close_header} bind:this={close}>
+			<button id="settings-close" on:click={close_header}>
 				<i class="fa-solid fa-square-chevron-left" />
 			</button>
 		</div>
 	</header>
 
-	<main>
-		<button id="settings-open" on:click={open_header} data-active="false" bind:this={open}>
+	<div class="main">
+		<button id="settings-open" on:click={open_header} data-active={true} bind:this={open}>
 			<i class="fa-solid fa-square-chevron-right" />
 		</button>
 		<slot />
-	</main>
+	</div>
 </div>
 
 <style>
@@ -153,18 +152,12 @@
 		height: 100%;
 		background: var(--ctp-mocha-base);
 		color: var(--ctp-mocha-text);
-		font-size: 1.1rem;
+		font-size: 1.25rem;
 	}
 	:global(a) {
 		text-decoration: none;
 		color: var(--ctp-mocha-peach);
 		font-weight: bold;
-
-		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: clip;
-		text-wrap: nowrap;
-		-webkit-user-drag: none;
 
 		&:hover {
 			text-decoration: underline;
@@ -207,6 +200,11 @@
 			filter: brightness(75%);
 		}
 	}
+
+	:global(img) {
+		max-width: 50ch;
+	}
+
 	:global(.unselectable) {
 		-webkit-touch-callout: none;
 		-webkit-user-select: none;
@@ -243,30 +241,42 @@
 	:root {
 		--trans-time: 250ms;
 	}
+
+	a {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: clip;
+		text-wrap: nowrap;
+		-webkit-user-drag: none;
+	}
+
 	#wrapper {
-		display: grid;
-		grid-template-columns: auto 1fr;
 		height: 100%;
 		position: relative;
 		transition: var(--trans-time);
 	}
-	main {
+	.main {
+		height: 100%;
 		position: relative;
 		transition: var(--trans-time);
-		overflow: auto;
+	}
+	#wrapper:has(header[data-active='true']) .main {
+		padding-left: 24rem;
 	}
 	header {
 		display: grid;
 		grid-template-rows: auto 1fr;
 
 		width: 24rem;
-		height: 100dvh;
+		height: 100%;
 
 		font-size: 1.25rem;
 		padding: 1rem;
-		padding-bottom: 6rem;
 		background: var(--ctp-mocha-mantle);
-		overflow-x: hidden;
+		overflow: auto;
+
+		position: fixed;
+		z-index: 90;
 
 		white-space: nowrap;
 
@@ -284,11 +294,8 @@
 		position: relative;
 	}
 
-	:global(summary::-webkit-details-marker) {
-		display: none;
-	}
 	:global(details > *:not(summary)) {
-		padding-left: 1.5rem;
+		padding-left: 2ch;
 	}
 
 	:global(summary) {
@@ -300,8 +307,10 @@
 	}
 	:global(details > summary > i) {
 		position: absolute;
-		left: -1.5rem;
+		left: -2.5ch;
 		transition: var(--trans-time);
+		width: 2ch;
+		text-align: center;
 	}
 	:global(details[open] > summary > i) {
 		rotate: 90deg;
@@ -311,13 +320,14 @@
 		position: relative;
 	}
 	:global(details[open]::before) {
+		--width: 0.1rem;
 		content: '';
 
 		position: absolute;
-		translate: -1.15rem 0;
+		translate: calc(-1.5ch - var(--width) / 2) 0;
 		bottom: 0.1rem;
 
-		width: 0.1rem;
+		width: var(--width);
 		height: calc(100% - 2rem);
 		background: var(--ctp-mocha-text);
 	}
@@ -350,6 +360,9 @@
 		padding: 1rem;
 		font-size: 2rem;
 		background: var(--ctp-mocha-crust);
+		z-index: 100;
+
+		transition: var(--trans-time);
 	}
 	#settings-close {
 		display: grid;
@@ -362,7 +375,7 @@
 		border-radius: 1rem 0 0 1rem;
 		padding: 0.5rem;
 		padding-left: 0.75rem;
-		background: var(--ctp-mocha-mantle);
+		background: var(--ctp-mocha-crust);
 		color: var(--ctp-mocha-text);
 
 		font-size: 2rem;
@@ -394,27 +407,20 @@
 			font-size: 1rem;
 		}
 
-		#wrapper {
-			grid-auto-flow: column;
-			grid-template-columns: 1fr;
-			grid-template-rows: 1fr 0;
+		#wrapper:has(header[data-active='true']) .main {
+			padding-left: 0;
+			top: 24rem;
+			height: calc(100% - 24rem);
 		}
-
 		header {
-			padding-bottom: 2rem;
-			padding-top: 5rem;
+			top: 4rem;
 			width: 100%;
-			height: 100%;
+			height: 20rem;
+			font-size: 1.5rem;
 		}
 		:global(header[data-active='false']) {
 			height: 0;
 			padding: 0 1rem;
-		}
-		:global(#wrapper:has(header[data-active='false'])) {
-			grid-template-rows: 0fr 1fr;
-		}
-		:global(#wrapper:has(header[data-active='true'])) {
-			grid-template-rows: 2fr 3fr;
 		}
 
 		#settings {
@@ -424,7 +430,7 @@
 		}
 		#settings-close {
 			right: 0.75rem;
-			top: 0;
+			top: 100%;
 			rotate: 90deg;
 			border-radius: 0 1rem 1rem 0;
 			padding-left: 0.5rem;

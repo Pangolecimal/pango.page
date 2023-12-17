@@ -838,19 +838,19 @@
 		render() {
 			strokeWidth(width * 0.0025);
 			let [p0, p1, p2] = [this.p0, this.p1, this.p2];
-			let [q01, q12, q20] = [p1.add(p0).mult(0.5), p2.add(p1).mult(0.5), p0.add(p2).mult(0.5)];
+			let [c01, c12, c20] = [(p1.hue + p0.hue) / 2, (p2.hue + p1.hue) / 2, (p0.hue + p2.hue) / 2];
 
-			stroke(p0.color);
-			line(p0.x, p0.y, q01.x, q01.y);
-			line(p0.x, p0.y, q20.x, q20.y);
+			stroke(`hsla(${c01}, 60%, 60%)`);
+			line(p0.x, p0.y, p1.x, p1.y);
+			line(p0.x, p0.y, p1.x, p1.y);
 
-			stroke(p1.color);
-			line(p1.x, p1.y, q12.x, q12.y);
-			line(p1.x, p1.y, q01.x, q01.y);
+			stroke(`hsla(${c12}, 60%, 60%)`);
+			line(p1.x, p1.y, p2.x, p2.y);
+			line(p1.x, p1.y, p2.x, p2.y);
 
-			stroke(p2.color);
-			line(p2.x, p2.y, q20.x, q20.y);
-			line(p2.x, p2.y, q12.x, q12.y);
+			stroke(`hsla(${c20}, 60%, 60%)`);
+			line(p2.x, p2.y, p0.x, p0.y);
+			line(p2.x, p2.y, p0.x, p0.y);
 		}
 
 		/**
@@ -1042,17 +1042,20 @@
 	}
 </script>
 
-<main>
-	<canvas id="cnv" width="800" height="800" bind:this={cnv} />
-	<div id="menu">
+<main id="lights-out">
+	<div id="lights">
+		<canvas id="cnv" width="800" height="800" bind:this={cnv} />
 		<div id="point-make">
 			<button class="btn" id="btn-create" on:click={create_random_point}>Add A Random Point</button>
 			<button class="btn" id="btn-remove" on:click={delete_last_point}>Remove The Last Point</button>
 		</div>
+	</div>
+
+	<div id="point-list-wrap">
 		<h3>Points</h3>
 		<div id="point-list">
 			{#each points as p, i}
-				<div class="pid" id="pid-{p.id}">
+				<div class="point" id="pid-{p.id}">
 					<label style="--accent:{p.color}">
 						X<sub>{i}</sub>:
 						<input
@@ -1096,7 +1099,6 @@
 						/>
 					</label>
 				</div>
-				<br />
 			{/each}
 		</div>
 	</div>
@@ -1104,117 +1106,101 @@
 
 <style>
 	main {
+		display: grid;
+		grid-auto-flow: column;
+		gap: 2rem;
+		padding: 2rem;
+		height: 100%;
+	}
+
+	#cnv {
+		display: grid;
+		place-self: center;
+		width: 30rem;
+		height: 30rem;
+		max-width: 600px;
+		max-height: 600px;
+	}
+
+	#lights {
+		display: grid;
+		place-items: start;
+		width: 100%;
+		gap: 2rem;
+	}
+
+	#point-make {
 		width: 100%;
 		height: 100%;
-		padding: 1rem;
 		display: grid;
-		place-items: center;
 		grid-auto-flow: column;
+		justify-content: center;
+		align-items: start;
+		gap: 1rem;
+	}
+	#btn-create {
+		color: var(--ctp-mocha-green);
+	}
+	#btn-remove {
+		color: var(--ctp-mocha-red);
+	}
 
-		& > #cnv {
-			justify-self: center;
-			width: clamp(400px, 100%, 800px);
-			padding: 2rem;
-		}
+	button {
+		background: var(--ctp-mocha-crust);
+		padding: 1rem;
+		border-radius: 1rem;
+		font-size: 1rem;
+		font-weight: bold;
+	}
 
-		& > #menu {
-			display: grid;
-			justify-content: center;
-			align-items: start;
-			grid-template-rows: auto 0 3fr;
-			overflow-y: hidden;
+	#point-list-wrap {
+		display: grid;
+		grid-template-rows: auto 1fr;
+		justify-content: center;
+		align-items: center;
+		width: 30rem;
+		padding: 1rem;
+		border-radius: 1rem;
+		/* background: var(--ctp-mocha-mantle); */
+		overflow: clip;
+		gap: 1rem;
+	}
 
-			padding: 1rem;
-			height: 100%;
-			gap: 2rem;
-			border-radius: 1rem;
-			background: var(--ctp-mocha-mantle);
+	#point-list {
+		display: grid;
+		align-items: start;
+		grid-template-rows: repeat(10, min-content);
 
-			& > #point-make {
-				width: 100%;
-				height: fit-content;
-				display: grid;
-				gap: 1rem;
-
-				& > .btn {
-					--_pri: var(--pri, var(--ctp-mocha-text));
-					--_sec: var(--sec, var(--ctp-mocha-overlay2));
-					padding: 0.25rem 1rem;
-					border-radius: 1rem;
-					font-size: inherit;
-					font-weight: bold;
-					color: var(--ctp-mocha-base);
-					background: var(--_pri);
-					box-shadow: 0 0 0.2rem 0.1rem var(--_sec);
-					width: 100%;
-				}
-
-				& > #btn-create {
-					--pri: var(--ctp-mocha-green);
-					--sec: var(--ctp-mocha-teal);
-				}
-				& > #btn-remove {
-					--pri: var(--ctp-mocha-red);
-					--sec: var(--ctp-mocha-mauve);
-				}
-				& > #btn-triangulate {
-					--pri: var(--ctp-mocha-sky);
-					--sec: var(--ctp-mocha-blue);
-				}
-				& > #btn-create-triangulate {
-					--pri: var(--ctp-mocha-teal);
-					--sec: var(--ctp-mocha-sky);
-				}
-			}
-
-			& > #point-list {
-				width: 100%;
-				height: 100%;
-				padding: 2rem;
-				background: var(--ctp-mocha-crust);
-				border-radius: 0.25rem;
-				gap: 1rem;
-
-				overflow-y: scroll;
-				overflow-x: hidden;
-				&::-webkit-scrollbar {
-					width: 0.5rem;
-				}
-				&::-webkit-scrollbar-track {
-					background: transparent;
-				}
-				&::-webkit-scrollbar-thumb {
-					background: var(--ctp-mocha-text);
-					border-radius: 100vw;
-				}
-				&::-webkit-scrollbar-thumb:hover {
-					background: #555;
-				}
-
-				& > div.pid {
-					display: grid;
-				}
-
-				& label {
-					color: var(--accent);
-				}
-
-				& input[type='number'] {
-					color: var(--ctp-mocha-text);
-					background: var(--ctp-mocha-mantle);
-					border: none;
-					font-size: 1rem;
-					padding-right: 1ch;
-					border-radius: 0.5rem;
-					width: 5ch;
-					text-align: start;
-				}
-
-				/* & input[type='range'] {
-					accent-color: var(--accent);
-				} */
-			}
-		}
+		gap: 2rem;
+		height: 75dvh;
+		width: 25rem;
+		background: var(--ctp-mocha-mantle);
+		padding: 2rem;
+		border-radius: 1rem;
+		overflow-y: auto;
+	}
+	input[type='number'] {
+		color: var(--ctp-mocha-text);
+		background: var(--ctp-mocha-crust);
+		border: none;
+		font-size: 1rem;
+		padding-left: 1ch;
+		border-radius: 0.5rem;
+		width: 10ch;
+		text-align: start;
+	}
+	.point {
+		width: 20rem;
+		height: 4rem;
+		display: grid;
+		justify-content: center;
+	}
+	label {
+		color: var(--accent);
+		font-weight: bold;
+	}
+	h3 {
+		text-align: center;
 	}
 
 	:global(input::-webkit-outer-spin-button, input::-webkit-inner-spin-button) {
@@ -1225,15 +1211,12 @@
 	@media only screen and (orientation: portrait) {
 		main {
 			grid-auto-flow: row;
+			place-items: center;
 		}
 
-		main > #cnv {
-			width: clamp(400px, 100%, 600px);
-		}
-
-		main > #menu {
-			font-size: 1rem;
-			width: 100%;
+		#cnv {
+			width: 80vw;
+			height: 80vw;
 		}
 	}
 </style>
