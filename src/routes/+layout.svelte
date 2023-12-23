@@ -152,7 +152,7 @@
 		height: 100%;
 		background: var(--ctp-mocha-base);
 		color: var(--ctp-mocha-text);
-		font-size: 1.25rem;
+		font-size: 1.1rem;
 	}
 	:global(a) {
 		text-decoration: none;

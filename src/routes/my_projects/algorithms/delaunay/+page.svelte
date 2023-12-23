@@ -1105,21 +1105,22 @@
 </main>
 
 <style>
-	main {
+	#lights-out {
 		display: grid;
 		grid-auto-flow: column;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr;
 		gap: 2rem;
-		padding: 2rem;
+		padding: 1rem;
 		height: 100%;
 	}
 
 	#cnv {
 		display: grid;
 		place-self: center;
-		width: 30rem;
-		height: 30rem;
-		max-width: 600px;
-		max-height: 600px;
+		width: min(30rem, 60vh, 60vw);
+		height: min(30rem, 60vh, 60vw);
+		align-self: end;
 	}
 
 	#lights {
@@ -1147,23 +1148,25 @@
 
 	button {
 		background: var(--ctp-mocha-crust);
-		padding: 1rem;
+		padding: 0.75rem;
 		border-radius: 1rem;
 		font-size: 1rem;
 		font-weight: bold;
+		width: calc(min(30rem, 60vh, 60vw) / 2);
 	}
 
 	#point-list-wrap {
 		display: grid;
 		grid-template-rows: auto 1fr;
-		justify-content: center;
-		align-items: center;
-		width: 30rem;
+		place-items: center;
+		width: 100%;
+		height: 100%;
 		padding: 1rem;
 		border-radius: 1rem;
-		/* background: var(--ctp-mocha-mantle); */
 		overflow: clip;
 		gap: 1rem;
+
+		position: relative;
 	}
 
 	#point-list {
@@ -1171,10 +1174,12 @@
 		align-items: start;
 		grid-template-rows: repeat(10, min-content);
 
-		gap: 2rem;
-		height: 75dvh;
-		width: 25rem;
+		position: absolute;
+
 		background: var(--ctp-mocha-mantle);
+		gap: 2rem;
+		height: 80%;
+		width: 25rem;
 		padding: 2rem;
 		border-radius: 1rem;
 		overflow-y: auto;
@@ -1201,6 +1206,9 @@
 	}
 	h3 {
 		text-align: center;
+		position: absolute;
+		z-index: 100;
+		top: 0;
 	}
 
 	:global(input::-webkit-outer-spin-button, input::-webkit-inner-spin-button) {
@@ -1209,14 +1217,11 @@
 	}
 
 	@media only screen and (orientation: portrait) {
-		main {
+		#lights-out {
 			grid-auto-flow: row;
 			place-items: center;
-		}
-
-		#cnv {
-			width: 80vw;
-			height: 80vw;
+			grid-template-columns: 1fr;
+			grid-template-rows: 1fr 1fr;
 		}
 	}
 </style>
