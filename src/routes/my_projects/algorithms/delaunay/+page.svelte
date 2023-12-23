@@ -1183,6 +1183,7 @@
 		padding: 2rem;
 		border-radius: 1rem;
 		overflow-y: auto;
+		overflow-x: clip;
 	}
 	input[type='number'] {
 		color: var(--ctp-mocha-text);
@@ -1208,7 +1209,7 @@
 		text-align: center;
 		position: absolute;
 		z-index: 100;
-		top: 0;
+		top: 1rem;
 	}
 
 	:global(input::-webkit-outer-spin-button, input::-webkit-inner-spin-button) {
@@ -1222,6 +1223,10 @@
 			place-items: center;
 			grid-template-columns: 1fr;
 			grid-template-rows: 1fr 1fr;
+		}
+
+		h3 {
+			top: 0;
 		}
 	}
 </style>
